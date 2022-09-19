@@ -1,38 +1,76 @@
-let exchangeRateSell = 135;
-let exchangeRateBuy = 130;
-let usDollarsIn;
-let usDollarsOut;;
-function argPesosIn(exchangeRateSell, usDollarsOut) {
-    return argPesosIn = exchangeRateSell * usDollarsOut;
+let foreignCurrencyIn;
+let foreignCurrencyOut;
+let chosenForeignCurrency;
+let rates = [];
+let currencyTypes = [];
+
+class ForeignCurrency {
+    constructor (type, exchangeRateBuy, exchangeRateSell){
+        this.type = type,
+        this.exchangeRateBuy = Number(exchangeRateBuy),
+        this.exchangeRateSell = Number(exchangeRateSell);
+    }
+};
+
+const foreignCurrencies = [];
+
+const currency1 = new ForeignCurrency('USD', 141, 149);
+const currency2 = new ForeignCurrency('EUR', 142, 150);
+const currency3 = new ForeignCurrency('BRL', 25.20, 29.20);
+
+foreignCurrencies.push(currency1,currency2, currency3);
+
+for (const currency of foreignCurrencies){
+        currencyTypes.push(currency.type);
+    }
+
+function localCurrencyIn(exchangeRateSell, foreignCurrencyOut) {
+    return localCurrencyIn = exchangeRateSell * foreignCurrencyOut;
 }
-function impuestoPais(argPesosIn) {
-    return impuestoPais = argPesosIn * 0.35;
+function impuestoPais(localCurrencyIn) {
+    return impuestoPais = localCurrencyIn * 0.35;
 }
-function retGanancias(argPesosIn) {
-    return retGanancias = argPesosIn * 0.30;
+function retGanancias(localCurrencyIn) {
+    return retGanancias = localCurrencyIn * 0.30;
 }
-function argPesosInFinal(argPesosIn, impuestoPais, retGanancias) {
-    return argPesosInFinal = Number(argPesosIn + impuestoPais + retGanancias);
+function localCurrencyInFinal(localCurrencyIn, impuestoPais, retGanancias) {
+    return localCurrencyInFinal = Number(localCurrencyIn + impuestoPais + retGanancias);
 }
-function argPesosOut(exchangeRateBuy, usDollarsIn) {
-    return argPesosOut = exchangeRateBuy * usDollarsIn;
+function localCurrencyOut(exchangeRateBuy, foreignCurrencyIn) {
+    return localCurrencyOut = exchangeRateBuy * foreignCurrencyIn;
 }
-let operacion = prompt('Por favor, indique qué tipo de operación desea realizar: (C) AR$ a U$S (V) U$S a AR$').toUpperCase();
+
+while(!currencyTypes.includes(chosenForeignCurrency)){
+chosenForeignCurrency = prompt(`Por favor, indique con qué moneda desea operar: ${currencyTypes.join(', ')}.`).toUpperCase();
+}
+
+for (const currency of foreignCurrencies){
+    while(currency.type===chosenForeignCurrency){
+        rates = [currency.exchangeRateBuy,currency.exchangeRateSell];
+        console.log(rates);
+        break;
+    }
+}
+
+let operacion = prompt(`Por favor, indique qué tipo de operación desea realizar: (C) AR$ a ${chosenForeignCurrency} (V) ${chosenForeignCurrency} a AR$`).toUpperCase();
 while (operacion != 'C' && operacion != 'V') {
     operacion = prompt('La opción ingresada es inválida. (C) AR$ a U$S (V) U$S a AR$').toUpperCase();
 }
 switch (operacion) {
     case 'C':
-        usDollarsOut = Number(prompt(`Actualmente el tipo de cambio es AR$ ${exchangeRateSell.toFixed(2)} por dólar para la venta. Ingrese la cantidad de dólares que desea comprar`));
-        while (usDollarsOut > 200 || isNaN(usDollarsOut)) {
-            usDollarsOut = Number(prompt('No podemos procesar su operación. Por favor, ingrese la cantidad de dólares a comprar respetando el formato numérico y el cupo de U$S 200.'));
+           foreignCurrencyOut = Number(prompt(`Actualmente el tipo de cambio es AR$ ${rates[1].toFixed(2)} por ${chosenForeignCurrency} para la venta. Ingrese la cantidad de ${chosenForeignCurrency} que desea comprar`));
+        while ((foreignCurrencyOut*rates[1]) > (200*currency1.exchangeRateSell) || isNaN(foreignCurrencyOut)) {
+            foreignCurrencyOut = Number(prompt(`No podemos procesar su operación. Por favor, ingrese la cantidad de ${chosenForeignCurrency} a comprar respetando el formato numérico y el cupo de U$S 200.`));
         }
-        alert(`Para comprar U$S ${usDollarsOut.toFixed(2)} deberá desembolsar AR$ ${argPesosIn(exchangeRateSell, usDollarsOut).toFixed(2)} más impuesto PAIS de AR$ ${impuestoPais(argPesosIn).toFixed(2)} y retención a cuenta de ganancias por AR$ ${retGanancias(argPesosIn).toFixed(2)}`)
-        alert(`Se debitará un total de AR$ ${argPesosInFinal(argPesosIn, impuestoPais, retGanancias).toFixed(2)} de su cuenta.`);
-        alert('Operación exitosa. No olvide que por haber comprado dólares en el MULC, el BCRA le impide vender títulos contra dólares durante los próximos 90 días.');
+        alert(`Para comprar ${chosenForeignCurrency} ${foreignCurrencyOut.toFixed(2)} deberá desembolsar AR$ ${localCurrencyIn(rates[1], foreignCurrencyOut).toFixed(2)} más impuesto PAIS de AR$ ${impuestoPais(localCurrencyIn).toFixed(2)} y retención a cuenta de ganancias por AR$ ${retGanancias(localCurrencyIn).toFixed(2)}`)
+        alert(`Se debitará un total de AR$ ${localCurrencyInFinal(localCurrencyIn, impuestoPais, retGanancias).toFixed(2)} de su cuenta.`);
+        alert('Operación exitosa. No olvide que por haber operado una compra en el MULC, el BCRA le impide vender títulos contra moneda extranjera durante los próximos 90 días.');
         break;
     case 'V':
-        usDollarsIn = Number(prompt(`Actualmente el tipo de cambio es AR$ ${exchangeRateBuy.toFixed(2)} por dólar para la compra. Ingrese la cantidad de dólares que desea vender`));
-        alert(`Acreditaremos en su cuenta un total de AR$ ${argPesosOut(exchangeRateBuy, usDollarsIn).toFixed(2)} a cambio de sus U$S ${usDollarsIn.toFixed(2)} . Su Banco Central le agradece la gentileza.`);
+        foreignCurrencyIn = Number(prompt(`Actualmente el tipo de cambio es AR$ ${rates[0].toFixed(2)} por unidad monetaria para la compra. Ingrese la cantidad de moneda extranjera que desea vender`));
+        while (isNaN(foreignCurrencyIn) || foreignCurrencyIn<=0) {
+            foreignCurrencyIn = Number(prompt(`No podemos procesar su operación. ${chosenForeignCurrency} a vender respetando el formato numérico.`));
+        }
+        alert(`Acreditaremos en su cuenta un total de AR$ ${localCurrencyOut(rates[0], foreignCurrencyIn).toFixed(2)} a cambio de sus ${chosenForeignCurrency} ${foreignCurrencyIn.toFixed(2)} . Su Banco Central le agradece la gentileza.`);
         break;
-}
+};
